@@ -1,4 +1,5 @@
 # Student Management System (SMS)
+### 🚀 [View Live Application](https://student-management-system-developersaif.vercel.app)
 
 A full-stack web application built for managing student enrollments, academic programmes, staff operations, and tuition fee payments. 
 
