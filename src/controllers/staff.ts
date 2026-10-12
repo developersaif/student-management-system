@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma"
 import { revalidatePath } from "next/cache"
+import { put } from "@vercel/blob"
 import path from "path"
 import fs from "fs/promises"
 
@@ -60,19 +61,29 @@ export async function submitAssessmentAction(formData: FormData) {
 		return { success: false, error: "Assessment not found." }
 	}
 
-	// Ensure public/uploads directory exists
-	const uploadDir = path.join(process.cwd(), "public", "uploads")
-	await fs.mkdir(uploadDir, { recursive: true })
-
-	// Save file to public/uploads
-	const bytes = await file.arrayBuffer()
-	const buffer = Buffer.from(bytes)
 	const safeFileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
-	const filePath = path.join(uploadDir, safeFileName)
+	let fileUrl = ""
 
-	await fs.writeFile(filePath, buffer)
+	// Check if vercel token exists (Production)
+	if (process.env.BLOB_READ_WRITE_TOKEN) {
+		// Production: Upload to Vercel Blob Cloud Storage
+		const blob = await put(`submissions/${safeFileName}`, file, {
+			access: "public",
+		})
+		fileUrl = blob.url
+	} else {
+		// Local Development: Save to local public/uploads directory
+		const uploadDir = path.join(process.cwd(), "public", "uploads")
+		await fs.mkdir(uploadDir, { recursive: true })
 
-	const fileUrl = `/uploads/${safeFileName}`
+		const bytes = await file.arrayBuffer()
+		const buffer = Buffer.from(bytes)
+		const filePath = path.join(uploadDir, safeFileName)
+
+		await fs.writeFile(filePath, buffer)
+		fileUrl = `/uploads/${safeFileName}`
+	}
+
 	const now = new Date()
 	const isLate = now > new Date(assessment.deadline)
 
@@ -102,7 +113,7 @@ export async function submitAssessmentAction(formData: FormData) {
 	return { success: true }
 }
 
-// 3. Staff Action: Record/Update Grade
+// 3. Staff Update Grade
 export async function recordGradeAction(formData: FormData) {
 	const assessmentId = formData.get("assessmentId") as string
 	const studentId = formData.get("studentId") as string

@@ -13,7 +13,7 @@ async function MarksheetContent() {
 			},
 			grades: true,
 		},
-		orderBy: { deadline: "desc" },
+		orderBy: { deadline: "asc" },
 	})
 
 	return <ViewMarksheet initialAssessments={initialAssessments} />

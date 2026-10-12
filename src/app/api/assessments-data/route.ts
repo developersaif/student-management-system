@@ -6,12 +6,13 @@ export async function GET() {
 		include: {
 			submissions: {
 				include: { student: true },
+				// orderBy: { submittedAt: "desc" },
 			},
 			grades: {
 				include: { student: true },
 			},
 		},
-		orderBy: { deadline: "desc" },
+		orderBy: { deadline: "asc" },
 	})
 
 	const students = await prisma.student.findMany({

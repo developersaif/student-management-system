@@ -17,7 +17,7 @@ export default function ViewAssessment({ initialAssessments, initialStudents }: 
 	const [students] = useState<any[]>(initialStudents)
 	const [, setIsLoading] = useState(false)
 
-	// Fetch assessment data after mutations/uploads
+	// Fetch assessment data
 	const loadData = useCallback(async () => {
 		setIsLoading(true)
 		try {

@@ -34,5 +34,8 @@ npx prisma db seed
 # run development server 
 npm run dev
 
+# production build   
+npm run build
+
 #optional 
 npm test
